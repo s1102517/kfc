@@ -19,8 +19,8 @@ from linebot.exceptions import(
 from linebot.models import(
     MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
 )
-line_bot_api = LineBotApi()
-handler = WebhookHandler()
+line_bot_api = LineBotApi(masJq9DxN0JNm5qCnz8v5pXUqz9jTIO6sS/8EDYwjafouQEMEWxYOAgX2r5Je3VTYNON7H+wKeRvYH5YeYE6w6yH+OfTAkCGdVH1ubFxo7v3gtba0yFORlVaEHB/wE0sn4m+M/R+Cv6Qa0GgzSHnZwdB04t89/1O/w1cDnyilFU=)
+handler = WebhookHandler(dfbf95a165ebe238e7d034ee20750e51)
 
 app = Flask(__name__)
 
