@@ -1,69 +1,21 @@
-import request,json
-from bs4 import BeautifuSoup
+import requests,json
+from bs4 import BeautifulSoup
 
 from flask import Flask, render_template, request, abort, make_response, jsonify
 from datetime import datetime, timezone, timedelta
 
+
 import firebase_admin
 from firebase_admin import credentials, firestore
+
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
-from linebot import(
-    Linebot, WebhookHandler
-)
-from linebot.exceptions import(
-    InvalidSignatureError
-)
-from linebot.models import(
-    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
-)
-line_bot_api = LineBotApi(masJq9DxN0JNm5qCnz8v5pXUqz9jTIO6sS/8EDYwjafouQEMEWxYOAgX2r5Je3VTYNON7H+wKeRvYH5YeYE6w6yH+OfTAkCGdVH1ubFxo7v3gtba0yFORlVaEHB/wE0sn4m+M/R+Cv6Qa0GgzSHnZwdB04t89/1O/w1cDnyilFU=)
-handler = WebhookHandler(dfbf95a165ebe238e7d034ee20750e51)
 
 app = Flask(__name__)
 
-@app.route("/callback", methods=["POST"])
-def callback():
-    signature = request.headers["X-Line-Signature"]
-
-    body = request.get_date(as_text=Ture)
-    app.logger.info("Request body" + body)
-
-    try:
-        handler.handler(body, signature)
-    except InvalidSignatureError:
-        abort(400)
-
-    return "OK"
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    message = event.message.text
-    if(message[:6].upper() == 'KFC'):
-        res = searchMenu(message[7:])
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text = res))
-    else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text= "我是肯德基點餐機器人，請問您要點些什麼呢？" + event.message.text + "。")
-        )
-def searchMenu(keyword):
-    info = "您要查詢餐點，關鍵字為:" + keyword + "\n"
-    collection_ref = db.collection("KFC")
-    docs = collection_ref.order_by("meal").get()
-    fond = False
-    for doc in docs:
-        if keyword in doc.to_dict()["meal"]:
-            found = True
-            info += "餐點:" + doc.to_dict()["meal"] + "\n"
-            info += "Meal:" + doc.to_dict()["ps"] + "\n"
-            info += "餐點資訊:" + doc.to_dict()["more"] + "\n"
-
-    if not found:
-        info += "找不到符合搜尋字詞「" + keyword + "」的餐點。"
-    return info
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -74,11 +26,11 @@ def webhook():
         cond = req.get("queryResult").get("parameters").get("Subway_Menu")
         info = ""
         result = jsonify({
-            "fulfillmentText": info
-            "fulfillmentMessage":[
+            "fulfillmentText": info,
+            "fulfillmentMessages": [
                 {"image":
                     {
-                        "imageUri":"圖片.jpd"
+                        "imageUri": "https://www1.pu.edu.tw/~s1102293/kfc_menu.png"
                     }
                 }
             ]
@@ -109,7 +61,6 @@ def webhook():
             if cond in doc.to_dict()["meal"]:
                 found = True
                 info += "餐點:" + doc.to_dict()["meal"] + "\n"
-                info += "Meal:" + doc.to_dict()["ps"] + "\n"
                 info += "餐點資訊:" + doc.to_dict()["more"] + "\n\n"
         info += "需要為您查詢" + cond +"的其他資訊嗎?" + "\n"
         if not found:
@@ -170,7 +121,6 @@ def webhook():
             if cond in doc.to_dict()["meal"]:
                 found = True
                 info += "餐點:" + doc.to_dict()["meal"] + "\n"
-                info += "Meal:" + doc.to_dict()["ps"] + "\n"
                 info += "卡路里:"+ str(doc.to_dict()["kcal"]) + "\n"
                 info += "售價:"+ str(doc.to_dict()["money"]) + "\n"
                 info += "餐點資訊:" + doc.to_dict()["more"]
