@@ -144,8 +144,8 @@ def webhook():
         result = jsonify({"fulfillmentText": info})
     return make_response(result)
 
-if __name__ == "__main__":
-    app.run()
+#if __name__ == "__main__":
+#    app.run()
 
 
 
